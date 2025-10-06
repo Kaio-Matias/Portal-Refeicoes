@@ -1,0 +1,95 @@
+﻿@page
+@model Portal_Refeicoes.Pages.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+</div>
+
+<div class="row">
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="dashboard-card">
+            <div class="card-body">
+                <div class="card-icon icon-colaboradores">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="card-content">
+                    <div class="card-title text-uppercase">Colaboradores Ativos</div>
+                    <div class="card-text">@Model.Stats.TotalColaboradoresAtivos</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="dashboard-card">
+            <div class="card-body">
+                <div class="card-icon icon-refeicoes">
+                    <i class="bi bi-egg-fried"></i>
+                </div>
+                <div class="card-content">
+                    <div class="card-title text-uppercase">Refeições Servidas Hoje</div>
+                    <div class="card-text">@Model.Stats.RefeicoesHoje</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="dashboard-card">
+            <div class="card-body">
+                <div class="card-icon icon-alertas">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div class="card-content">
+                    <div class="card-title text-uppercase">Alertas Pendentes</div>
+                    <div class="card-text text-dark">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12 mb-4">
+        <div class="chart-container">
+            <h5 class="mb-3">Refeições da Última Semana</h5>
+            <p class="text-center text-muted">(Área para um futuro gráfico de barras)</p>
+            <img src="~/img/grafico-exemplo.png" class="img-fluid" alt="Gráfico de exemplo" />
+        </div>
+    </div>
+
+    <div class="col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 header-laranja">
+                <h6 class="m-0 font-weight-bold">Últimos Registos</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    @if (Model.RegistrosRecentes.Any())
+                    {
+                        @foreach (var registro in Model.RegistrosRecentes)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@registro.ColaboradorNome</strong><br>
+                                    <small class="text-muted">@registro.DepartamentoNome</small>
+                                </div>
+                                <span class="badge bg-light text-dark">@registro.DataHoraRegistro.ToString("HH:mm")</span>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item">Nenhum registo hoje.</li>
+                    }
+                </ul>
+                <div class="text-center mt-3">
+                    <a asp-page="/Refeicoes/Index" class="text-decoration-none">Ver Todos os Registos &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

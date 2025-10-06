@@ -1,0 +1,43 @@
+﻿@page
+@model Portal_Refeicoes.Pages.Usuarios.CreateModel
+@{
+    ViewData["Title"] = "Novo Usuário";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">@ViewData["Title"]</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Username" class="form-label"></label>
+                <input asp-for="Input.Username" class="form-control" />
+                <span asp-validation-for="Input.Username" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label"></label>
+                <input asp-for="Input.Password" class="form-control" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Role" class="form-label">Perfil</label>
+                <select asp-for="Input.Role" class="form-select">
+                    <option value="">Selecione um perfil</option>
+                    <option value="Admin">Admin</option>
+                    <option value="User">User</option>
+                    <option value="SuperAdmin">SuperAdmin</option>
+                </select>
+                <span asp-validation-for="Input.Role" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a asp-page="./Index" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>

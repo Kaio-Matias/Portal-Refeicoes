@@ -1,0 +1,64 @@
+﻿@page
+@model Portal_Refeicoes.Pages.Colaboradores.IndexModel
+@{
+    ViewData["Title"] = "Gestão de Colaboradores";
+}
+
+<div class="page-title-container" style="text-align:center">
+    <h1 class="h2">@ViewData["Title"]</h1>
+    <a asp-page="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Novo Colaborador
+    </a>
+</div>
+
+<div class="row">
+    @foreach (var item in Model.Colaboradores)
+    {
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="colaborador-card">
+                <div class="card-body">
+                    @{
+                        var imgSrc = "/img/avatar-placeholder.png"; // Imagem padrão
+                        if (item.Foto != null && item.Foto.Length > 0)
+                        {
+                            var base64 = Convert.ToBase64String(item.Foto);
+                            imgSrc = $"data:image/jpeg;base64,{base64}";
+                        }
+                    }
+                    <img src="@imgSrc" alt="Foto de @item.Nome" class="colaborador-foto" />
+
+                    <div class="nome-status">
+                        <h5 class="colaborador-nome">@item.Nome</h5>
+                        @if (item.Ativo)
+                        {
+                            <span class="badge rounded-pill bg-success-subtle text-success-emphasis">Ativo</span>
+                        }
+                        else
+                        {
+                            <span class="badge rounded-pill bg-danger-subtle text-danger-emphasis">Inativo</span>
+                        }
+                    </div>
+
+                    <p class="colaborador-funcao">@item.Funcao</p>
+
+                    <div class="colaborador-info">
+                        <p class="mb-1">
+                            <i class="bi bi-briefcase-fill me-2 text-muted"></i>
+                            @item.Departamento
+                        </p>
+                        <p class="mb-0">
+                            <i class="bi bi-credit-card-2-front-fill me-2 text-muted"></i>
+                            @item.CartaoPonto
+                        </p>
+                    </div>
+
+                    <div class="actions">
+                        <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-outline-primary">
+                            <i class="bi bi-pencil-fill me-2"></i> Editar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

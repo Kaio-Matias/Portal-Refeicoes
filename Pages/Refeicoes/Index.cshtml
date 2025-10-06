@@ -1,0 +1,33 @@
+﻿@page
+@model Portal_Refeicoes.Pages.Refeicoes.IndexModel
+@{
+    ViewData["Title"] = "Registos de Refeições";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">@ViewData["Title"]</h1>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Data e Hora</th>
+                <th>Colaborador</th>
+                <th>Função</th>
+                <th>Departamento</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var refeicao in Model.Refeicoes)
+            {
+                <tr>
+                    <td>@refeicao.DataHoraRegistro.ToString("g")</td>
+                    <td>@refeicao.Colaborador.Nome</td>
+                    <td>@refeicao.Colaborador.FuncaoNome</td>
+                    <td>@refeicao.Colaborador.DepartamentoNome</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

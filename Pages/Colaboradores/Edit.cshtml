@@ -1,0 +1,88 @@
+﻿@page "{id:int}"
+@model Portal_Refeicoes.Pages.Colaboradores.EditModel
+@{
+    ViewData["Title"] = "Editar Colaborador";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 page-header">
+    <h1 class="h2">@ViewData["Title"]</h1>
+</div>
+
+<div class="card card-form">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <input type="hidden" asp-for="Colaborador.Id" />
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Colaborador.Nome" class="form-label"></label>
+                                <input asp-for="Colaborador.Nome" class="form-control" />
+                                <span asp-validation-for="Colaborador.Nome" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Colaborador.CartaoPonto" class="form-label"></label>
+                                <input asp-for="Colaborador.CartaoPonto" class="form-control" />
+                                <span asp-validation-for="Colaborador.CartaoPonto" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Colaborador.FuncaoId" class="form-label"></label>
+                                <select asp-for="Colaborador.FuncaoId" class="form-select" asp-items="Model.Funcoes"></select>
+                                <span asp-validation-for="Colaborador.FuncaoId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Colaborador.DepartamentoId" class="form-label"></label>
+                                <select asp-for="Colaborador.DepartamentoId" class="form-select" asp-items="Model.Departamentos"></select>
+                                <span asp-validation-for="Colaborador.DepartamentoId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <label class="form-label">Foto Atual</label>
+                    @if (Model.Colaborador.FotoAtual != null && Model.Colaborador.FotoAtual.Length > 0)
+                    {
+                        var base64 = Convert.ToBase64String(Model.Colaborador.FotoAtual);
+                        var imgSrc = $"data:image/jpeg;base64,{base64}";
+                        <img src="@imgSrc" alt="Foto do Colaborador" class="image-preview d-block mx-auto" />
+                    }
+                    else
+                    {
+                        <img src="/img/avatar-placeholder.png" alt="Sem Foto" class="image-preview d-block mx-auto" />
+                    }
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NovaImagem" class="form-label">Alterar Foto (opcional)</label>
+                <input asp-for="NovaImagem" class="form-control" type="file" />
+                <span asp-validation-for="NovaImagem" class="text-danger"></span>
+            </div>
+
+            <div class="form-check form-switch mb-4">
+                <input class="form-check-input" type="checkbox" role="switch" asp-for="Colaborador.Ativo">
+                <label class="form-check-label" asp-for="Colaborador.Ativo">Colaborador Ativo</label>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                <a asp-page="./Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

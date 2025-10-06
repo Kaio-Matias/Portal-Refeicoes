@@ -1,0 +1,40 @@
+﻿@page
+@model Portal_Refeicoes.Pages.Usuarios.IndexModel
+@{
+    ViewData["Title"] = "Usuários do Sistema";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">@ViewData["Title"]</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a asp-page="Create" class="btn btn-sm btn-outline-primary">
+            Novo Usuário
+        </a>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome de Usuário</th>
+                <th>Perfil</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var usuario in Model.Usuarios)
+            {
+                <tr>
+                    <td>@usuario.Id</td>
+                    <td>@usuario.Username</td>
+                    <td>@usuario.Role</td>
+                    <td>
+                        <a asp-page="/Usuarios/Edit" asp-route-id="@usuario.Id" class="btn btn-sm btn-outline-secondary">Editar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
