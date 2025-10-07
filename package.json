@@ -1,0 +1,28 @@
+{
+  "name": "portal-refeicoes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start-sync": "browser-sync start --proxy 'http://localhost:7010' --files 'Pages/**/*.cshtml, wwwroot/**/*.*' --port 3001 --https"
+  },
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kaio-Matias/Portal-Refeicoes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kaio-Matias/Portal-Refeicoes/issues"
+  },
+  "homepage": "https://github.com/Kaio-Matias/Portal-Refeicoes#readme",
+  "devDependencies": {
+    "browser-sync": "^3.0.4"
+  }
+
+
+}
+
+
