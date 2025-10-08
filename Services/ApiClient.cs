@@ -173,7 +173,7 @@ namespace Portal_Refeicoes.Services
         }
 
         // --- MÉTODOS DE PARADA DE FÁBRICA ---
-// --- MÉTODOS DE DASHBOARD ---
+        // --- MÉTODOS DE DASHBOARD ---
 
         public async Task<DashboardStatsViewModel> GetDashboardStatsAsync()
         {
