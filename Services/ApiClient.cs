@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Portal_Refeicoes.Models;
-using Portal_Refeicoes.Pages.Usuarios; // Adicionado para simplificar a referência
+using Portal_Refeicoes.Pages.Usuarios; // Mantido para compatibilidade com os métodos de usuário
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -27,16 +27,14 @@ namespace Portal_Refeicoes.Services
         private void AddAuthorizationHeader()
         {
             var token = _httpContextAccessor.HttpContext?.User?.FindFirst("access_token")?.Value;
-
             _httpClient.DefaultRequestHeaders.Authorization = null;
-
             if (!string.IsNullOrEmpty(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
         }
 
-        // --- MÉTODOS DE USUÁRIO ---
+        // --- MÉTODOS DE USUÁRIO (Originais Preservados) ---
 
         public async Task<List<Usuario>> GetUsuariosAsync()
         {
@@ -97,7 +95,7 @@ namespace Portal_Refeicoes.Services
             return response.IsSuccessStatusCode;
         }
 
-        // --- MÉTODOS DE REFEIÇÃO ---
+        // --- MÉTODOS DE REFEIÇÃO (Originais Preservados) ---
 
         public async Task<List<RefeicaoViewModel>> GetRefeicoesAsync()
         {
@@ -113,12 +111,17 @@ namespace Portal_Refeicoes.Services
             }
         }
 
-        // --- MÉTODOS DE COLABORADOR ---
+        // --- MÉTODOS DE COLABORADOR (Atualizados) ---
 
-        public async Task<List<ColaboradorViewModel>> GetColaboradoresAsync()
+        public async Task<List<ColaboradorViewModel>> GetColaboradoresAsync(string searchString = null)
         {
             AddAuthorizationHeader();
-            return await _httpClient.GetFromJsonAsync<List<ColaboradorViewModel>>("api/colaboradores") ?? new List<ColaboradorViewModel>();
+            var url = "api/colaboradores";
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                url += $"?searchString={System.Net.WebUtility.UrlEncode(searchString)}";
+            }
+            return await _httpClient.GetFromJsonAsync<List<ColaboradorViewModel>>(url) ?? new List<ColaboradorViewModel>();
         }
 
         public async Task<ColaboradorViewModel> GetColaboradorByIdAsync(int id)
@@ -135,10 +138,21 @@ namespace Portal_Refeicoes.Services
             content.Add(new StringContent(colaborador.CartaoPonto), "CartaoPonto");
             content.Add(new StringContent(colaborador.FuncaoId.ToString()), "FuncaoId");
             content.Add(new StringContent(colaborador.DepartamentoId.ToString()), "DepartamentoId");
+
+            // --- ADIÇÃO DOS CAMPOS DE PERMISSÃO PARA CRIAÇÃO ---
+            content.Add(new StringContent(colaborador.AcessoCafeDaManha.ToString().ToLower()), "AcessoCafeDaManha");
+            content.Add(new StringContent(colaborador.AcessoAlmoco.ToString().ToLower()), "AcessoAlmoco");
+            content.Add(new StringContent(colaborador.AcessoJanta.ToString().ToLower()), "AcessoJanta");
+            content.Add(new StringContent(colaborador.AcessoCeia.ToString().ToLower()), "AcessoCeia");
+
             if (imagem != null)
                 content.Add(new StreamContent(imagem.OpenReadStream()), "imagem", imagem.FileName);
 
             var response = await _httpClient.PostAsync("api/colaboradores", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Falha ao criar colaborador. Status: {StatusCode}", response.StatusCode);
+            }
             return response.IsSuccessStatusCode;
         }
 
@@ -151,14 +165,25 @@ namespace Portal_Refeicoes.Services
             content.Add(new StringContent(colaborador.FuncaoId.ToString()), "FuncaoId");
             content.Add(new StringContent(colaborador.DepartamentoId.ToString()), "DepartamentoId");
             content.Add(new StringContent(colaborador.Ativo.ToString().ToLower()), "Ativo");
+
+            // --- ADIÇÃO DOS CAMPOS DE PERMISSÃO PARA ATUALIZAÇÃO ---
+            content.Add(new StringContent(colaborador.AcessoCafeDaManha.ToString().ToLower()), "AcessoCafeDaManha");
+            content.Add(new StringContent(colaborador.AcessoAlmoco.ToString().ToLower()), "AcessoAlmoco");
+            content.Add(new StringContent(colaborador.AcessoJanta.ToString().ToLower()), "AcessoJanta");
+            content.Add(new StringContent(colaborador.AcessoCeia.ToString().ToLower()), "AcessoCeia");
+
             if (imagem != null)
                 content.Add(new StreamContent(imagem.OpenReadStream()), "imagem", imagem.FileName);
 
             var response = await _httpClient.PutAsync($"api/colaboradores/{id}", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Falha ao atualizar colaborador. Status: {StatusCode}", response.StatusCode);
+            }
             return response.IsSuccessStatusCode;
         }
 
-        // --- MÉTODOS DE DEPARTAMENTO E FUNÇÃO ---
+        // --- MÉTODOS DE DEPARTAMENTO E FUNÇÃO (Originais Preservados) ---
 
         public async Task<List<Departamento>> GetDepartamentosAsync()
         {
@@ -172,8 +197,7 @@ namespace Portal_Refeicoes.Services
             return await _httpClient.GetFromJsonAsync<List<Funcao>>("api/funcoes") ?? new List<Funcao>();
         }
 
-        // --- MÉTODOS DE PARADA DE FÁBRICA ---
-        // --- MÉTODOS DE DASHBOARD ---
+        // --- MÉTODOS DE DASHBOARD (Originais Preservados) ---
 
         public async Task<DashboardStatsViewModel> GetDashboardStatsAsync()
         {
@@ -188,7 +212,19 @@ namespace Portal_Refeicoes.Services
                 return new DashboardStatsViewModel(); // Retorna objeto vazio em caso de erro
             }
         }
+        public async Task<(bool Success, string Message)> CadastrarBiometriaAsync(int colaboradorId, string templateBase64)
+        {
+            var requestData = new { ColaboradorId = colaboradorId, BiometriaTemplateBase64 = templateBase64 };
+            var response = await _httpClient.PostAsJsonAsync("api/biometria/cadastrar", requestData);
 
+            if (response.IsSuccessStatusCode)
+            {
+                return (true, "Biometria cadastrada com sucesso!");
+            }
+
+            var errorContent = await response.Content.ReadAsStringAsync();
+            return (false, $"Falha ao cadastrar: {errorContent}");
+        }
         public async Task<List<RegistroRecenteViewModel>> GetRegistrosRecentesAsync()
         {
             AddAuthorizationHeader();

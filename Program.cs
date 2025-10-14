@@ -28,6 +28,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 // Configurar o HttpClient e o ApiClient
+builder.Services.AddSingleton<BiometriaService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<ApiClient>("ApiClient", client =>
 {

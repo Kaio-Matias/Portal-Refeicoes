@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Portal_Refeicoes.Models;
 using Portal_Refeicoes.Services; // Adicione o using para o ApiClient
@@ -22,10 +23,11 @@ namespace Portal_Refeicoes.Pages.Colaboradores
         // Correção 2: Usar o ColaboradorViewModel, que é o tipo correto retornado pela API.
         public IList<ColaboradorViewModel> Colaboradores { get; set; } = new List<ColaboradorViewModel>();
 
+        [BindProperty(SupportsGet = true)]
+        public string SearchString { get; set; }
         public async Task OnGetAsync()
         {
-            // Correção 3: Chamar o método GetColaboradoresAsync do ApiClient, que já cuida de tudo.
-            var colaboradores = await _apiClient.GetColaboradoresAsync();
+            var colaboradores = await _apiClient.GetColaboradoresAsync(SearchString);
             if (colaboradores != null)
             {
                 Colaboradores = colaboradores;

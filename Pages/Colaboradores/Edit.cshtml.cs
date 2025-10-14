@@ -35,6 +35,7 @@ namespace Portal_Refeicoes.Pages.Colaboradores
             var colaboradorDaApi = await _apiClient.GetColaboradorByIdAsync(id.Value);
             if (colaboradorDaApi == null) return NotFound();
 
+            // Mapeia os dados da API para o modelo de edição, incluindo as novas permissões
             Colaborador = new ColaboradorEditModel
             {
                 Id = colaboradorDaApi.Id,
@@ -43,7 +44,12 @@ namespace Portal_Refeicoes.Pages.Colaboradores
                 Ativo = colaboradorDaApi.Ativo,
                 FotoAtual = colaboradorDaApi.Foto,
                 FuncaoId = colaboradorDaApi.FuncaoId,
-                DepartamentoId = colaboradorDaApi.DepartamentoId
+                DepartamentoId = colaboradorDaApi.DepartamentoId,
+                // --- CARREGANDO PERMISSÕES DA API ---
+                AcessoCafeDaManha = colaboradorDaApi.AcessoCafeDaManha,
+                AcessoAlmoco = colaboradorDaApi.AcessoAlmoco,
+                AcessoJanta = colaboradorDaApi.AcessoJanta,
+                AcessoCeia = colaboradorDaApi.AcessoCeia
             };
 
             await PopulateDropdowns(Colaborador.DepartamentoId, Colaborador.FuncaoId);

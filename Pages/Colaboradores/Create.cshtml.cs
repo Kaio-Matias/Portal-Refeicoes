@@ -36,7 +36,6 @@ namespace Portal_Refeicoes.Pages.Colaboradores
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // --- Validação do tipo de arquivo ---
             if (Imagem != null)
             {
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
@@ -45,6 +44,10 @@ namespace Portal_Refeicoes.Pages.Colaboradores
                 {
                     ModelState.AddModelError("Imagem", "Por favor, envie um arquivo de imagem válido (JPG, PNG, GIF).");
                 }
+            }
+            else
+            {
+                ModelState.AddModelError("Imagem", "A imagem do colaborador é obrigatória.");
             }
 
             if (!ModelState.IsValid)
