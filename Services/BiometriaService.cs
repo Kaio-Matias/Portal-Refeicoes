@@ -1,40 +1,60 @@
-﻿// PontoRefeitorio/Services/BiometriaService.cs
-using CIDBio;
-using System.Threading.Tasks;
+﻿using Portal_Refeicoes.Models;
+using System.Text.Json;
 
-public class BiometriaService
+namespace Portal_Refeicoes.Services
 {
-    public Task<(bool Success, string Message, string TemplateBase64)> CapturarTemplate()
+    public class BiometriaService
     {
-        return Task.Run(() => {
+        private readonly ApiClient _apiClient;
+        private readonly ILogger<BiometriaService> _logger;
+
+        public BiometriaService(ApiClient apiClient, ILogger<BiometriaService> logger)
+        {
+            _apiClient = apiClient;
+            _logger = logger;
+        }
+
+        public async Task<(bool Sucesso, string Mensagem)> CadastrarBiometriaAsync(int colaboradorId, string templateBase64)
+        {
+            if (string.IsNullOrEmpty(templateBase64))
+            {
+                return (false, "O template biométrico não pode estar vazio.");
+            }
+
+            var requestModel = new CadastroBiometriaRequest
+            {
+                ColaboradorId = colaboradorId,
+                BiometriaTemplateBase64 = templateBase64
+            };
+
             try
             {
-                var ret = CIDBio.Init();
-                if (ret != RetCode.SUCCESS && ret != RetCode.WARNING_ALREADY_INIT)
-                {
-                    return (false, "Erro ao iniciar leitor: " + CIDBio.GetErrorMessage(ret), null);
-                }
+                // Usa o ApiClient para fazer a requisição POST para a API de Refeições
+                var (sucesso, responseBody) = await _apiClient.PostAsync("api/biometria/cadastrar", requestModel);
 
-                ret = CIDBio.CaptureImageAndTemplate(out string template, out _, out _, out _, out _);
-                if (ret != RetCode.SUCCESS)
+                if (sucesso)
                 {
-                    return (false, "Falha na captura: " + CIDBio.GetErrorMessage(ret), null);
-                }
+                    _logger.LogInformation("Biometria cadastrada com sucesso para o Colaborador ID: {ColaboradorId}", colaboradorId);
 
-                return (true, "Captura realizada com sucesso", template);
-            }
-            catch (DllNotFoundException)
-            {
-                return (false, "Erro Crítico: DLL do leitor iDBIO não encontrada.", null);
+                    // Desserializa a resposta para pegar a mensagem
+                    var jsonResponse = JsonDocument.Parse(responseBody);
+                    var message = jsonResponse.RootElement.TryGetProperty("message", out var messageElement)
+                                  ? messageElement.GetString()
+                                  : "Biometria cadastrada com sucesso.";
+
+                    return (true, message ?? "Operação realizada com sucesso.");
+                }
+                else
+                {
+                    _logger.LogWarning("Falha ao cadastrar biometria para o Colaborador ID: {ColaboradorId}. Resposta: {Resposta}", colaboradorId, responseBody);
+                    return (false, $"Erro da API: {responseBody}");
+                }
             }
             catch (Exception ex)
             {
-                return (false, $"Erro inesperado: {ex.Message}", null);
+                _logger.LogError(ex, "Exceção ao tentar cadastrar biometria para o Colaborador ID: {ColaboradorId}", colaboradorId);
+                return (false, $"Erro de exceção: {ex.Message}");
             }
-            finally
-            {
-                CIDBio.Terminate();
-            }
-        });
+        }
     }
 }
