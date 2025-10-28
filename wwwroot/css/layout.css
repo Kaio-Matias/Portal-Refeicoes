@@ -1,0 +1,168 @@
+﻿:root {
+    --sidebar-width-expanded: 280px;
+    --sidebar-width-collapsed: 80px; /* Largura suficiente para ícones */
+    --transition-speed: 0.3s;
+}
+
+body {
+    overflow-x: hidden; /* Previne scroll horizontal */
+}
+
+.sidebar {
+    width: var(--sidebar-width-expanded);
+    min-height: 100vh;
+    transition: width var(--transition-speed) ease, left var(--transition-speed) ease; /* Adiciona left para mobile */
+    overflow-x: hidden; /* Esconde texto quando recolhido */
+    position: sticky; /* Mantém a sidebar visível ao rolar (Desktop) */
+    top: 0;
+    height: 100vh; /* Ocupa a altura toda */
+}
+
+.main-content {
+    transition: margin-left var(--transition-speed) ease;
+    margin-left: 0; /* Começa sem margem */
+    width: 100%; /* Ocupa o resto */
+    overflow-y: auto; /* Permite scroll vertical no conteúdo */
+    height: 100vh; /* Ocupa a altura */
+}
+
+.sidebar .sidebar-brand-text,
+.sidebar .sidebar-text {
+    opacity: 1;
+    transition: opacity var(--transition-speed) ease;
+    white-space: nowrap; /* Impede quebra de linha */
+}
+
+.sidebar .sidebar-logo {
+    width: 40px;
+    height: 40px;
+    transition: width var(--transition-speed) ease, height var(--transition-speed) ease;
+}
+
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+}
+
+.sidebar .sidebar-icon {
+    min-width: 2rem; /* Garante alinhamento dos ícones */
+    text-align: center;
+    font-size: 1.1rem; /* Tamanho dos ícones */
+}
+
+.sidebar hr {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+
+/* --- Estilos para Sidebar Recolhida (Desktop) --- */
+.sidebar.collapsed {
+    width: var(--sidebar-width-collapsed);
+}
+
+    .sidebar.collapsed .sidebar-brand-text,
+    .sidebar.collapsed .sidebar-text {
+        opacity: 0;
+        visibility: hidden; /* Esconde completamente */
+        pointer-events: none; /* Impede interação com texto invisível */
+    }
+
+    .sidebar.collapsed .sidebar-logo {
+        width: 30px; /* Logo menor */
+        height: 30px;
+    }
+
+    .sidebar.collapsed .dropdown-toggle::after {
+        display: none; /* Esconde a seta do dropdown do usuário */
+    }
+
+    /* Tooltips para ícones quando recolhido (usando Bootstrap) */
+    .sidebar.collapsed .nav-link {
+        justify-content: center; /* Centraliza ícone */
+    }
+
+        .sidebar.collapsed .nav-link .sidebar-icon {
+            margin-right: 0 !important; /* Remove margem do ícone */
+        }
+
+/* Botão de Toggle Desktop */
+.sidebar-toggle-desktop-wrapper {
+    text-align: center;
+}
+
+.sidebar-toggle-desktop {
+    transition: transform var(--transition-speed) ease;
+}
+
+.sidebar.collapsed .sidebar-toggle-desktop i {
+    transform: rotate(180deg); /* Gira a seta */
+}
+
+/* Ajuste do conteúdo principal (apenas em telas maiores) */
+@media (min-width: 768px) { /* md breakpoint do Bootstrap */
+    .main-content {
+        /* A margem é controlada pela largura da sidebar */
+        margin-left: var(--sidebar-width-expanded);
+        width: calc(100% - var(--sidebar-width-expanded));
+    }
+
+    .sidebar.collapsed + .main-content {
+        margin-left: var(--sidebar-width-collapsed);
+        width: calc(100% - var(--sidebar-width-collapsed));
+    }
+
+    /* Esconde os botões de toggle Mobile */
+    #sidebarToggleOpen, #sidebarToggleClose {
+        display: none !important;
+    }
+}
+
+
+/* --- Estilos para Sidebar em Telas Pequenas --- */
+@media (max-width: 767.98px) { /* Abaixo do md breakpoint */
+    .sidebar {
+        position: fixed; /* Sidebar flutuante */
+        left: calc(-1 * var(--sidebar-width-expanded)); /* Começa escondida */
+        top: 0;
+        bottom: 0;
+        z-index: 1040; /* Acima do conteúdo principal */
+        width: var(--sidebar-width-expanded); /* Sempre largura total quando aberta */
+        height: 100%; /* Garante altura total */
+        overflow-y: auto; /* Permite scroll se o menu for longo */
+    }
+
+        .sidebar.active {
+            left: 0; /* Mostra a sidebar */
+        }
+
+    .main-content {
+        margin-left: 0; /* Conteúdo sempre ocupa 100% */
+        width: 100%;
+    }
+
+    /* Overlay para escurecer o fundo quando a sidebar mobile está aberta */
+    body.sidebar-open::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1030; /* Abaixo da sidebar, acima do conteúdo */
+        display: none; /* Começa escondido */
+    }
+
+    body.sidebar-open::before {
+        display: block; /* Mostra o overlay */
+    }
+
+    #sidebarToggleOpen, #sidebarToggleClose {
+        display: inline-block; /* Mostra os botões Mobile */
+    }
+
+    /* Esconde o botão de toggle Desktop */
+    .sidebar-toggle-desktop-wrapper {
+        display: none;
+    }
+}

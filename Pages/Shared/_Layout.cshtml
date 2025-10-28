@@ -1,89 +1,117 @@
-﻿@functions {
-    public string IsPageActive(string page)
-    {
-        var currentPage = ViewContext.RouteData.Values["Page"]?.ToString()?.TrimStart('/');
-        var targetPage = page.TrimStart('/');
-        return currentPage?.StartsWith(targetPage, StringComparison.OrdinalIgnoreCase) ?? false ? "active" : "";
-    }
-}
-
+﻿@using System.Security.Claims
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Portal de Gestão</title>
+    <title>@ViewData["Title"] - Portal de Refeições</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    @* Adiciona link para o CSS específico do layout *@
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
 </head>
-<body>
-    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="#">Portal de Gestão</a>
-        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </header>
-
-    <div class="container-fluid">
-        <div class="row">
-            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3 sidebar-sticky">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link @IsPageActive("/Index")" aria-current="page" asp-page="/Index">
-                                <i class="bi bi-house-door"></i> Dashboard
-                            </a>
-                        </li>
-                    </ul>
-
-                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1">
-                        <span>Gestão</span>
-                    </h6>
-                    <ul class="nav flex-column mb-2">
-                        <li class="nav-item">
-                            <a class="nav-link @IsPageActive("/Colaboradores")" asp-page="/Colaboradores/Index">
-                                <i class="bi bi-people"></i> Colaboradores
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @IsPageActive("/Departamentos")" asp-page="/Departamentos/Index">
-                                <i class="bi bi-briefcase"></i> Departamentos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @IsPageActive("/Funcoes")" asp-page="/Funcoes/Index">
-                                <i class="bi bi-award"></i> Funções
-                            </a>
-                        </li>
-                        @if (User.IsInRole("SuperAdmin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link @IsPageActive("/Usuarios")" asp-page="/Usuarios/Index">
-                                    <i class="bi bi-person-check"></i> Usuários
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                    <hr class="text-white-50" />
-                    <div class="nav-item px-3 mt-auto pb-3">
-                        <form method="post" asp-page="/Logout">
-                            <button type="submit" class="nav-link px-0 btn btn-link text-white-50 w-100 text-start">
-                                <i class="bi bi-box-arrow-right"></i> Sair
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </nav>
-
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                @RenderBody()
-            </main>
+<body class="d-flex">
+    @* --- Sidebar Modificada --- *@
+    <div class="sidebar d-flex flex-column p-3 bg-dark text-white" id="sidebar">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a asp-page="/Index" class="d-flex align-items-center text-white text-decoration-none">
+                <img src="~/img/logo.png" alt="Logo" class="sidebar-logo me-2" />
+                <span class="fs-4 sidebar-brand-text">Refeitório</span>
+            </a>
+            @* Botão de fechar (visível apenas em telas menores) *@
+            <button class="btn btn-dark d-md-none" id="sidebarToggleClose" title="Fechar Menu">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a asp-page="/Index" class="nav-link text-white @(ViewData["Title"]?.ToString() == "Dashboard" ? "active" : "")" title="Dashboard">
+                    <i class="fas fa-tachometer-alt me-2 sidebar-icon"></i>
+                    <span class="sidebar-text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a asp-page="/Colaboradores/Index" class="nav-link text-white @(ViewData["Title"]?.ToString().Contains("Colaborador") ?? false ? "active" : "")" title="Colaboradores">
+                    <i class="fas fa-users me-2 sidebar-icon"></i>
+                    <span class="sidebar-text">Colaboradores</span>
+                </a>
+            </li>
+            <li>
+                <a asp-page="/Refeicoes/Index" class="nav-link text-white @(ViewData["Title"]?.ToString().Contains("Refeições") ?? false ? "active" : "")" title="Refeições">
+                    <i class="fas fa-utensils me-2 sidebar-icon"></i>
+                    <span class="sidebar-text">Refeições</span>
+                </a>
+            </li>
+            <li>
+                <a asp-page="/Departamentos/Index" class="nav-link text-white @(ViewData["Title"]?.ToString().Contains("Departamentos") ?? false ? "active" : "")" title="Departamentos">
+                    <i class="fas fa-building me-2 sidebar-icon"></i>
+                    <span class="sidebar-text">Departamentos</span>
+                </a>
+            </li>
+            <li>
+                <a asp-page="/Funcoes/Index" class="nav-link text-white @(ViewData["Title"]?.ToString().Contains("Funções") ?? false ? "active" : "")" title="Funções">
+                    <i class="fas fa-id-card-alt me-2 sidebar-icon"></i>
+                    <span class="sidebar-text">Funções</span>
+                </a>
+            </li>
+            <li>
+                <a asp-page="/ParadaDeFabrica/Index" class="nav-link text-white @(ViewData["Title"]?.ToString().Contains("Parada") ?? false ? "active" : "")" title="Parada de Fábrica">
+                    <i class="fas fa-industry me-2 sidebar-icon"></i>
+                    <span class="sidebar-text">Parada de Fábrica</span>
+                </a>
+            </li>
+
+            @if (User.IsInRole("SuperAdmin"))
+            {
+                <hr />
+                <li>
+                    <a asp-page="/Usuarios/Index" class="nav-link text-white @(ViewData["Title"]?.ToString().Contains("Usuários") ?? false ? "active" : "")" title="Usuários">
+                        <i class="fas fa-user-shield me-2 sidebar-icon"></i>
+                        <span class="sidebar-text">Usuários</span>
+                    </a>
+                </li>
+            }
+        </ul>
+        <hr>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user-circle fs-3 me-2 sidebar-icon"></i>
+                <strong class="sidebar-text">@User.Identity?.Name</strong>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                <li><a class="dropdown-item" href="#">Configurações</a></li>
+                <li><a class="dropdown-item" href="#">Perfil</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" asp-page="/Logout">Sair</a></li>
+            </ul>
+        </div>
+        @* Botão de toggle para Desktop (adicionado no rodapé da sidebar) *@
+        <div class="sidebar-toggle-desktop-wrapper mt-3 text-center d-none d-md-block">
+            <button class="btn btn-outline-light" id="sidebarToggleDesktop" title="Recolher/Expandir Menu">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+    </div>
+
+    @* --- Conteúdo Principal Modificado --- *@
+    <div class="main-content flex-grow-1 p-4" id="main-content">
+        @* Botão de abrir (visível apenas em telas menores) *@
+        <button class="btn btn-dark mb-3 d-md-none" id="sidebarToggleOpen" title="Abrir Menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @* Adiciona script específico do layout *@
+    <script src="~/js/layout.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

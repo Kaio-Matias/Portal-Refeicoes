@@ -1,80 +1,182 @@
-﻿@page "{id:int}"
+﻿@page "{id:int?}"
 @model Portal_Refeicoes.Pages.Colaboradores.EditModel
 @{
     ViewData["Title"] = "Editar Colaborador";
+
+    // Helper para converter byte[] para Base64 Data URI
+    string GetImageDataUrl(byte[]? photoData)
+    {
+        if (photoData == null || photoData.Length == 0)
+        {
+            return string.Empty; // Retorna string vazia se não houver foto
+        }
+        // Tenta determinar o tipo de imagem pelos primeiros bytes (mágicos)
+        // Isso é uma simplificação, idealmente a API informaria o MimeType
+        string mimeType = "image/jpeg"; // Default
+        if (photoData.Length > 4 && photoData[0] == 0x89 && photoData[1] == 0x50 && photoData[2] == 0x4E && photoData[3] == 0x47)
+        {
+            mimeType = "image/png";
+        }
+        // Adicione outras verificações se necessário (GIF, etc.)
+
+        string base64String = Convert.ToBase64String(photoData);
+        return $"data:{mimeType};base64,{base64String}";
+    }
+
+    var imageDataUrl = GetImageDataUrl(Model.Colaborador.FotoAtual);
 }
 
-<div class="page-header">
-    <h1 class="h2">@ViewData["Title"]</h1>
-</div>
+<h1 class="mb-4">Editar Colaborador</h1>
 
-<div class="card card-form">
-    <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-            <input type="hidden" asp-for="Colaborador.Id" />
+<form method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <input type="hidden" asp-for="Colaborador.Id" />
 
-            <div class="row">
-                <div class="col-md-8">
+    <div class="row">
+        @* Coluna Principal do Formulário *@
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h3>Dados Pessoais</h3>
+                </div>
+                <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Colaborador.Nome" class="form-label"></label>
-                            <input asp-for="Colaborador.Nome" class="form-control" />
-                            <span asp-validation-for="Colaborador.Nome" class="text-danger"></span>
+                        <div class="col-md-9">
+                            <div class="mb-3">
+                                <label asp-for="Colaborador.Nome" class="form-label"></label>
+                                <input asp-for="Colaborador.Nome" class="form-control" />
+                                <span asp-validation-for="Colaborador.Nome" class="text-danger"></span>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Colaborador.CartaoPonto" class="form-label"></label>
+                                    <input asp-for="Colaborador.CartaoPonto" class="form-control" />
+                                    <span asp-validation-for="Colaborador.CartaoPonto" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Colaborador.Ativo" class="form-label"></label>
+                                    <select asp-for="Colaborador.Ativo" class="form-select">
+                                        <option value="true">Sim</option>
+                                        <option value="false">Não</option>
+                                    </select>
+                                    <span asp-validation-for="Colaborador.Ativo" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Colaborador.DepartamentoId" class="form-label"></label>
+                                    <select asp-for="Colaborador.DepartamentoId" class="form-select" asp-items="Model.Departamentos">
+                                        <option value="">-- Selecione --</option>
+                                    </select>
+                                    <span asp-validation-for="Colaborador.DepartamentoId" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Colaborador.FuncaoId" class="form-label"></label>
+                                    <select asp-for="Colaborador.FuncaoId" class="form-select" asp-items="Model.Funcoes">
+                                        <option value="">-- Selecione --</option>
+                                    </select>
+                                    <span asp-validation-for="Colaborador.FuncaoId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ImagemFile" class="form-label">Alterar Foto (Opcional)</label>
+                                <input asp-for="ImagemFile" type="file" class="form-control" accept="image/*">
+                                <span asp-validation-for="ImagemFile" class="text-danger"></span>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Colaborador.CartaoPonto" class="form-label"></label>
-                            <input asp-for="Colaborador.CartaoPonto" class="form-control" />
-                            <span asp-validation-for="Colaborador.CartaoPonto" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Colaborador.FuncaoId" class="form-label"></label>
-                            <select asp-for="Colaborador.FuncaoId" class="form-select" asp-items="Model.Funcoes"></select>
-                            <span asp-validation-for="Colaborador.FuncaoId" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Colaborador.DepartamentoId" class="form-label"></label>
-                            <select asp-for="Colaborador.DepartamentoId" class="form-select" asp-items="Model.Departamentos"></select>
-                            <span asp-validation-for="Colaborador.DepartamentoId" class="text-danger"></span>
+                        <div class="col-md-3 text-center">
+                            <label class="form-label">Foto Atual</label>
+                            @* --- CORREÇÃO: Usa a função auxiliar para gerar o Data URI --- *@
+                            @if (!string.IsNullOrEmpty(imageDataUrl))
+                            {
+                                <img src="@imageDataUrl" alt="Foto do Colaborador" class="img-thumbnail mb-2" style="max-height: 200px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="border p-3 text-center text-muted" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                    <span>Sem Foto</span>
+                                </div>
+                            }
                         </div>
                     </div>
+                </div> @* Fim card-body Dados Pessoais *@
+            </div> @* Fim card Dados Pessoais *@
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h3>Permissões de Refeição</h3>
                 </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="Colaborador.AcessoCafeDaManha" class="form-check-input" type="checkbox">
+                                <label asp-for="Colaborador.AcessoCafeDaManha" class="form-check-label"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="Colaborador.AcessoAlmoco" class="form-check-input" type="checkbox">
+                                <label asp-for="Colaborador.AcessoAlmoco" class="form-check-label"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="Colaborador.AcessoJanta" class="form-check-input" type="checkbox">
+                                <label asp-for="Colaborador.AcessoJanta" class="form-check-label"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="Colaborador.AcessoCeia" class="form-check-input" type="checkbox">
+                                <label asp-for="Colaborador.AcessoCeia" class="form-check-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div> @* Fim card-body Permissões *@
+            </div> @* Fim card Permissões *@
 
-                <div class="col-md-4 text-center">
-                    <label class="form-label d-block">Foto Atual</label>
-                    @{
-                        var imgSrc = "/img/avatar-placeholder.png";
-                        if (Model.Colaborador.FotoAtual != null && Model.Colaborador.FotoAtual.Length > 0)
-                        {
-                            var base64 = Convert.ToBase64String(Model.Colaborador.FotoAtual);
-                            imgSrc = $"data:image/jpeg;base64,{base64}";
-                        }
-                    }
-                    <img src="@imgSrc" alt="Foto do Colaborador" class="image-preview mb-3" />
+        </div> @* Fim col-md-8 *@
+
+        @* --- Coluna da Biometria e Botões --- *@
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h3><i class="fas fa-fingerprint"></i> Biometria Digital</h3>
+                </div>
+                <div class="card-body">
+                    <p>Clique no botão abaixo para registrar ou atualizar a impressão digital deste colaborador.</p>
+                    <button type="button" id="btnCadastrarBiometria" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-fingerprint"></i> Capturar Digital
+                    </button>
+                    <div id="statusBiometria" class="mt-3">
+                    </div>
+                    <div class="alert alert-info mt-3 small">
+                        <strong>Instruções:</strong> O software do leitor (ex: ControliD) deve estar rodando em <code>http://localhost:9000</code>.
+                    </div>
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="NovaImagem" class="form-label">Alterar Foto (opcional)</label>
-                <input asp-for="NovaImagem" class="form-control" type="file" />
-                <span asp-validation-for="NovaImagem" class="text-danger"></span>
+            @* Botões de Ação *@
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <a asp-page="./Index" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                    </div>
+                </div>
             </div>
+        </div> @* Fim col-md-4 *@
+    </div> @* Fim row principal *@
 
-            <div class="form-check form-switch mb-4">
-                <input class="form-check-input" type="checkbox" role="switch" asp-for="Colaborador.Ativo">
-                <label class="form-check-label" asp-for="Colaborador.Ativo">Colaborador Ativo</label>
-            </div>
+    @* Input hidden para pegar o ID do colaborador no JS *@
+    <input type="hidden" id="colaboradorIdHidden" value="@Model.Colaborador.Id" />
 
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-                <a asp-page="./Index" class="btn btn-secondary">Cancelar</a>
-            </div>
-        </form>
-    </div>
-</div>
+</form> @* Fim form principal *@
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script src="~/js/colaborador-edit-biometria.js" asp-append-version="true"></script>
 }

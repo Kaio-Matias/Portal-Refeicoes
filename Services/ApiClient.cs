@@ -1,13 +1,17 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Portal_Refeicoes.Models;
-using Portal_Refeicoes.Pages.Usuarios; // Mantido para compatibilidade com os métodos de usuário
+using Portal_Refeicoes.Pages.Usuarios;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration; // Adicionado
+using System.Text.Json; // Adicionado
+using System.Text; // Adicionado
+using System; // Adicionado
 
 namespace Portal_Refeicoes.Services
 {
@@ -16,12 +20,20 @@ namespace Portal_Refeicoes.Services
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<ApiClient> _logger;
+        private readonly string _apiBaseUrl;
 
-        public ApiClient(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, ILogger<ApiClient> logger)
+        public ApiClient(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, ILogger<ApiClient> logger, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
+
+            // --- INÍCIO DA CORREÇÃO ---
+            // Corrigido para ler a chave "ApiSettings:ApiBaseUrl" do appsettings.json
+            _apiBaseUrl = configuration["ApiSettings:ApiBaseUrl"] ?? "https://localhost:7071"; // Fallback corrigido
+            // --- FIM DA CORREÇÃO ---
+
+            _httpClient.BaseAddress = new Uri(_apiBaseUrl);
         }
 
         private void AddAuthorizationHeader()
@@ -90,7 +102,7 @@ namespace Portal_Refeicoes.Services
             {
                 Username = usuario.Username,
                 Role = usuario.Role,
-                Password = usuario.Password // A API irá ignorar se for nulo ou vazio
+                Password = usuario.Password
             });
             return response.IsSuccessStatusCode;
         }
@@ -209,22 +221,10 @@ namespace Portal_Refeicoes.Services
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Erro ao buscar estatísticas do dashboard.");
-                return new DashboardStatsViewModel(); // Retorna objeto vazio em caso de erro
+                return new DashboardStatsViewModel();
             }
         }
-        public async Task<(bool Success, string Message)> CadastrarBiometriaAsync(int colaboradorId, string templateBase64)
-        {
-            var requestData = new { ColaboradorId = colaboradorId, BiometriaTemplateBase64 = templateBase64 };
-            var response = await _httpClient.PostAsJsonAsync("api/biometria/cadastrar", requestData);
 
-            if (response.IsSuccessStatusCode)
-            {
-                return (true, "Biometria cadastrada com sucesso!");
-            }
-
-            var errorContent = await response.Content.ReadAsStringAsync();
-            return (false, $"Falha ao cadastrar: {errorContent}");
-        }
         public async Task<List<RegistroRecenteViewModel>> GetRegistrosRecentesAsync()
         {
             AddAuthorizationHeader();
@@ -235,7 +235,52 @@ namespace Portal_Refeicoes.Services
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "Erro ao buscar registros recentes do dashboard.");
-                return new List<RegistroRecenteViewModel>(); // Retorna lista vazia
+                return new List<RegistroRecenteViewModel>();
+            }
+        }
+
+        // --- MÉTODO DE BIOMETRIA (CORRIGIDO E ROBUSTO) ---
+        public async Task<(bool Success, string Message)> CadastrarBiometriaAsync(CadastroBiometriaRequest request)
+        {
+            AddAuthorizationHeader();
+
+            var jsonContent = JsonSerializer.Serialize(request);
+            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync("api/biometria/cadastrar", httpContent);
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                try
+                {
+                    var result = JsonSerializer.Deserialize<JsonElement>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    string message = result.TryGetProperty("message", out var msgElement) ? msgElement.GetString() : "Sucesso.";
+                    return (true, message);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Não foi possível deserializar a resposta de sucesso da API de biometria.");
+                    return (true, "Biometria cadastrada com sucesso.");
+                }
+            }
+            else
+            {
+                try
+                {
+                    var result = JsonSerializer.Deserialize<JsonElement>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    string message = result.TryGetProperty("message", out var msgElement) ? msgElement.GetString() :
+                                     result.TryGetProperty("title", out var titleElement) ? titleElement.GetString() :
+                                     response.ReasonPhrase;
+                    _logger.LogError("Erro da API ao cadastrar biometria: {Message}", message);
+                    return (false, message);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erro desconhecido ao cadastrar biometria. Status: {StatusCode}", response.StatusCode);
+                    return (false, $"Erro: {response.ReasonPhrase} ({(int)response.StatusCode})");
+                }
             }
         }
     }
