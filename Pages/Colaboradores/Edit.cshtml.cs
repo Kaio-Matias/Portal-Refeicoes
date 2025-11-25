@@ -108,56 +108,6 @@ namespace Portal_Refeicoes.Pages.Colaboradores
 
 
         // HANDLER PARA BIOMETRIA (Não precisa mudar, já usava o ID correto)
-        public async Task<IActionResult> OnPostCadastrarBiometriaAsync([FromBody] CadastroBiometriaRequest request)
-        {
-             if (request == null || request.ColaboradorId == 0 || string.IsNullOrEmpty(request.BiometriaTemplateBase64))
-            {
-                _logger.LogWarning("Recebido pedido inválido para cadastrar biometria: {@Request}", request);
-                return new JsonResult(new { success = false, message = "Dados inválidos recebidos." }) { StatusCode = 400 };
-            }
-
-             // Garante que temos o ID do colaborador corretamente, mesmo que o BindProperty principal ainda não tenha ocorrido
-             int colaboradorIdParaBiometria = Colaborador?.Id ?? 0;
-             if (colaboradorIdParaBiometria == 0 && RouteData.Values.TryGetValue("id", out var idObj) && int.TryParse(idObj?.ToString(), out int routeId))
-             {
-                 colaboradorIdParaBiometria = routeId;
-             }
-
-             if(colaboradorIdParaBiometria == 0) {
-                 _logger.LogError("Não foi possível determinar o ID do colaborador na página de edição para o cadastro de biometria.");
-                 return new JsonResult(new { success = false, message = "ID do colaborador não encontrado." }) { StatusCode = 400 };
-             }
-
-
-            if (request.ColaboradorId != colaboradorIdParaBiometria)
-            {
-                 _logger.LogWarning("Inconsistência de ID ao cadastrar biometria. ID da Página: {PageId}, ID do Request: {RequestId}", colaboradorIdParaBiometria, request.ColaboradorId);
-                 return new JsonResult(new { success = false, message = "Inconsistência no ID do colaborador." }) { StatusCode = 400 };
-            }
-
-            _logger.LogInformation("Recebido POST para cadastrar biometria para Colaborador ID {ColaboradorId}", request.ColaboradorId);
-
-            try
-            {
-                var (success, message) = await _apiClient.CadastrarBiometriaAsync(request);
-
-                if (success)
-                {
-                    _logger.LogInformation("Biometria cadastrada com sucesso via API para Colaborador ID {ColaboradorId}", request.ColaboradorId);
-                    return new JsonResult(new { success = true, message = message ?? "Biometria cadastrada com sucesso!" });
-                }
-                else
-                {
-                    _logger.LogWarning("Falha ao cadastrar biometria via API para Colaborador ID {ColaboradorId}. Mensagem: {ApiMessage}", request.ColaboradorId, message);
-                    return new JsonResult(new { success = false, message = message ?? "Falha ao cadastrar biometria na API." }) { StatusCode = 400 };
-                }
-            }
-            catch (Exception ex)
-            {
-                 _logger.LogError(ex, "Exceção no handler OnPostCadastrarBiometriaAsync para Colaborador ID {ColaboradorId}", request.ColaboradorId);
-                 return new JsonResult(new { success = false, message = "Erro interno no servidor ao processar a biometria." }) { StatusCode = 500 };
-            }
-        }
 
         private async Task LoadSelectLists()
         {
