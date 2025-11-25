@@ -62,6 +62,12 @@
                     <span class="sidebar-text">Parada de Fábrica</span>
                 </a>
             </li>
+            <li>
+                <a asp-page="/Justificativa/Index" class="nav-link text-white @(ViewData["Title"]?.ToString().Contains("Parada") ?? false ? "active" : "")" title="Parada de Fábrica">
+                    <i class="fas fa-industry me-2 sidebar-icon"></i>
+                    <span class="sidebar-text">Justificativa</span>
+                </a>
+            </li>
 
             @if (User.IsInRole("SuperAdmin"))
             {
@@ -72,6 +78,7 @@
                         <span class="sidebar-text">Usuários</span>
                     </a>
                 </li>
+                
             }
         </ul>
         <hr>

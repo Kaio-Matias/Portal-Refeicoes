@@ -9,6 +9,7 @@
 </div>
 
 <div class="row">
+    <!-- Card Colaboradores -->
     <div class="col-xl-4 col-md-6 mb-4">
         <div class="dashboard-card">
             <div class="card-body">
@@ -23,6 +24,7 @@
         </div>
     </div>
 
+    <!-- Card Refeições -->
     <div class="col-xl-4 col-md-6 mb-4">
         <div class="dashboard-card">
             <div class="card-body">
@@ -37,15 +39,23 @@
         </div>
     </div>
 
+    <!-- Card Alertas (Clicável) -->
     <div class="col-xl-4 col-md-6 mb-4">
-        <div class="dashboard-card">
+        <!-- A classe position-relative é necessária para o stretched-link funcionar -->
+        <div class="dashboard-card position-relative @(Model.Stats.AlertasPendentes > 0 ? "border-warning shadow-sm" : "")">
             <div class="card-body">
-                <div class="card-icon icon-alertas">
+                <div class="card-icon icon-alertas @(Model.Stats.AlertasPendentes > 0 ? "text-warning" : "")">
                     <i class="bi bi-exclamation-triangle-fill"></i>
                 </div>
                 <div class="card-content">
-                    <div class="card-title text-uppercase">Alertas Pendentes</div>
-                    <div class="card-text text-dark">0</div>
+                    <div class="card-title text-uppercase text-dark">Alertas Pendentes</div>
+
+                    <div class="card-text @(Model.Stats.AlertasPendentes > 0 ? "text-danger fw-bold" : "text-dark")">
+                        @Model.Stats.AlertasPendentes
+                    </div>
+
+                    <!-- Este link cobre todo o card -->
+                    <a asp-page="/Justificativa/Index" class="stretched-link text-decoration-none"></a>
                 </div>
             </div>
         </div>
@@ -57,7 +67,7 @@
         <div class="chart-container">
             <h5 class="mb-3">Refeições da Última Semana</h5>
             <p class="text-center text-muted">(Área para um futuro gráfico de barras)</p>
-            <img src="~/img/grafico-exemplo.png" class="img-fluid" alt="Gráfico de exemplo" />
+            <img src="~/img/grafico-exemplo.png" class="img-fluid" alt="Gráfico de exemplo" onerror="this.style.display='none'" />
         </div>
     </div>
 
@@ -68,7 +78,7 @@
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
-                    @if (Model.RegistrosRecentes.Any())
+                    @if (Model.RegistrosRecentes != null && Model.RegistrosRecentes.Any())
                     {
                         @foreach (var registro in Model.RegistrosRecentes)
                         {

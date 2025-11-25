@@ -9,5 +9,6 @@ namespace Portal_Refeicoes.Models
 
         [JsonPropertyName("refeicoesHoje")]
         public int RefeicoesHoje { get; set; }
+        public int AlertasPendentes { get; set; }
     }
 }
