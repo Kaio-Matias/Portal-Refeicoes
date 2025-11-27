@@ -1,15 +1,14 @@
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Portal_Refeicoes.Models;
 using Portal_Refeicoes.Services;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Portal_Refeicoes.Pages.Colaboradores
 {
+    [Authorize]
     public class CreateModel : PageModel
     {
         private readonly ApiClient _apiClient;
@@ -20,60 +19,43 @@ namespace Portal_Refeicoes.Pages.Colaboradores
         }
 
         [BindProperty]
-        public ColaboradorCreateModel Colaborador { get; set; }
-
-        [BindProperty]
-        public IFormFile Imagem { get; set; }
+        public ColaboradorCreateModel Input { get; set; }
 
         public SelectList Departamentos { get; set; }
         public SelectList Funcoes { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task OnGetAsync()
         {
-            await PopulateDropdowns();
-            return Page();
+            await CarregarListas();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (Imagem != null)
-            {
-                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-                var extension = Path.GetExtension(Imagem.FileName).ToLowerInvariant();
-                if (!allowedExtensions.Contains(extension))
-                {
-                    ModelState.AddModelError("Imagem", "Por favor, envie um arquivo de imagem válido (JPG, PNG, GIF).");
-                }
-            }
-            else
-            {
-                ModelState.AddModelError("Imagem", "A imagem do colaborador é obrigatória.");
-            }
-
             if (!ModelState.IsValid)
             {
-                await PopulateDropdowns();
+                await CarregarListas();
                 return Page();
             }
 
-            var success = await _apiClient.CreateColaboradorAsync(Colaborador, Imagem);
+            // CORREÇÃO CS1501: Chamada com apenas 1 argumento (o objeto Input)
+            var sucesso = await _apiClient.CreateColaboradorAsync(Input);
 
-            if (success)
+            if (sucesso)
             {
                 return RedirectToPage("./Index");
             }
 
-            ModelState.AddModelError(string.Empty, "Ocorreu um erro ao salvar o colaborador. Verifique os dados e tente novamente.");
-            await PopulateDropdowns();
+            ModelState.AddModelError(string.Empty, "Erro ao criar colaborador.");
+            await CarregarListas();
             return Page();
         }
 
-        private async Task PopulateDropdowns()
+        private async Task CarregarListas()
         {
-            var departamentos = await _apiClient.GetDepartamentosAsync();
-            var funcoes = await _apiClient.GetFuncoesAsync();
-            Departamentos = new SelectList(departamentos, "Id", "Nome");
-            Funcoes = new SelectList(funcoes, "Id", "Nome");
+            var deps = await _apiClient.GetDepartamentosAsync();
+            var funcs = await _apiClient.GetFuncoesAsync();
+            Departamentos = new SelectList(deps, "Id", "Nome");
+            Funcoes = new SelectList(funcs, "Id", "Nome");
         }
     }
 }

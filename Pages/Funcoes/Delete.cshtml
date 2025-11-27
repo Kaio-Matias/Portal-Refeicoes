@@ -1,7 +1,7 @@
 ﻿@page "{id:int}"
-@model Portal_Refeicoes.Pages.Departamentos.DeleteModel
+@model Portal_Refeicoes.Pages.Funcoes.DeleteModel
 @{
-    ViewData["Title"] = "Excluir Departamento";
+    ViewData["Title"] = "Excluir Função";
 }
 
 <div class="container mt-5" style="max-width: 500px;">
@@ -10,11 +10,11 @@
             <h4 class="mb-0"><i class="bi bi-exclamation-triangle-fill"></i> Confirmar Exclusão</h4>
         </div>
         <div class="card-body text-center">
-            <p class="lead">Tem certeza que deseja excluir o departamento?</p>
-            <h3 class="text-danger fw-bold mb-4">@Model.Departamento.Nome</h3>
+            <p class="lead">Tem certeza que deseja excluir a função?</p>
+            <h3 class="text-danger fw-bold mb-4">@Model.Funcao.Nome</h3>
 
             <form method="post">
-                <input type="hidden" asp-for="Departamento.Id" />
+                <input type="hidden" asp-for="Funcao.Id" />
                 <div class="d-flex justify-content-center gap-3">
                     <a asp-page="./Index" class="btn btn-secondary px-4">Cancelar</a>
                     <button type="submit" class="btn btn-danger px-4">Confirmar Exclusão</button>

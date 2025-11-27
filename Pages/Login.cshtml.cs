@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt; // Necessário para ler o Token
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace Portal_Refeicoes.Pages
 {
     [AllowAnonymous]
-    [IgnoreAntiforgeryToken] // <-- CORREÇÃO ADICIONADA AQUI
+    [IgnoreAntiforgeryToken]
     public class LoginModel : PageModel
     {
         private readonly IHttpClientFactory _clientFactory;
@@ -74,6 +74,7 @@ namespace Portal_Refeicoes.Pages
             var loginData = new { username = Input.Username, password = Input.Password };
             var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
+            // Chama a API para obter o Token JWT
             var response = await client.PostAsync("api/auth/login", content);
 
             if (!response.IsSuccessStatusCode)
@@ -93,32 +94,46 @@ namespace Portal_Refeicoes.Pages
                 return Page();
             }
 
+            // --- CORREÇÃO PRINCIPAL: Decodificar e Extrair Claims ---
             var handler = new JwtSecurityTokenHandler();
-            var token = handler.ReadJwtToken(tokenString);
+            var jwtToken = handler.ReadJwtToken(tokenString);
+            var claimsFromToken = jwtToken.Claims;
 
-            var claimsFromToken = token.Claims;
-
+            // Tenta obter o nome de usuário de diferentes padrões de claims
             var userName = claimsFromToken.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ??
-                           claimsFromToken.FirstOrDefault(c => c.Type == "unique_name")?.Value;
-            var userRole = claimsFromToken.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                           claimsFromToken.FirstOrDefault(c => c.Type == "unique_name")?.Value ??
+                           Input.Username;
 
+            // Tenta obter a Role. O JWT pode enviar como "role" ou o URI completo do ClaimTypes.Role
+            var roleClaim = claimsFromToken.FirstOrDefault(c => c.Type == "role" || c.Type == ClaimTypes.Role)?.Value;
+
+            // Configura as Claims da Sessão (Cookie)
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, userName),
-                new Claim("access_token", tokenString) // Armazena o token para uso futuro no ApiClient
+                new Claim("access_token", tokenString) // Salva o token para chamadas futuras
             };
 
-            if (!string.IsNullOrEmpty(userRole))
+            // Se encontrou uma role no token, adiciona à identidade como ClaimTypes.Role
+            // Isso permite que User.IsInRole("Admin") funcione nas Views e Pages
+            if (!string.IsNullOrEmpty(roleClaim))
             {
-                claims.Add(new Claim(ClaimTypes.Role, userRole));
+                claims.Add(new Claim(ClaimTypes.Role, roleClaim));
             }
 
             var claimsIdentity = new ClaimsIdentity(
                 claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = true, // Mantém o login mesmo fechando o navegador (opcional)
+                ExpiresUtc = System.DateTime.UtcNow.AddHours(8)
+            };
+
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity));
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
 
             return LocalRedirect(ReturnUrl);
         }

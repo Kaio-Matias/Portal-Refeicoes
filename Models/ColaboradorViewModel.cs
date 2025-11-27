@@ -1,94 +1,64 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace Portal_Refeicoes.Models
 {
-    // Modelo para EXIBIR a lista de colaboradores
+    // LISTAGEM (Index)
     public class ColaboradorViewModel
     {
         public int Id { get; set; }
         public string Nome { get; set; }
-        [Display(Name = "Cartão Ponto")]
         public string CartaoPonto { get; set; }
+        public bool Ativo { get; set; }
+        public byte[] Foto { get; set; } // Para exibir na lista
+
         public string Funcao { get; set; }
         public string Departamento { get; set; }
-        public bool Ativo { get; set; }
-        public byte[]? Foto { get; set; }
         public int FuncaoId { get; set; }
         public int DepartamentoId { get; set; }
-
-        // --- PROPRIEDADES ADICIONADAS PARA EXIBIÇÃO ---
-        [Display(Name = "Café")]
-        public bool AcessoCafeDaManha { get; set; }
-        [Display(Name = "Almoço")]
-        public bool AcessoAlmoco { get; set; }
-        [Display(Name = "Janta")]
-        public bool AcessoJanta { get; set; }
-        [Display(Name = "Ceia")]
-        public bool AcessoCeia { get; set; }
     }
 
-    // Modelo para o formulário de CRIAÇÃO
+    // CADASTRO (Create)
     public class ColaboradorCreateModel
     {
-        [Required(ErrorMessage = "O nome é obrigatório.")]
+        [Required(ErrorMessage = "O Nome é obrigatório.")]
         public string Nome { get; set; }
 
-        [Required(ErrorMessage = "O cartão de ponto é obrigatório.")]
-        [Display(Name = "Cartão Ponto")]
+        [Required(ErrorMessage = "O Cartão Ponto é obrigatório.")]
         public string CartaoPonto { get; set; }
 
-        [Required(ErrorMessage = "A função é obrigatória.")]
-        [Display(Name = "Função")]
+        [Required(ErrorMessage = "Selecione uma Função.")]
         public int FuncaoId { get; set; }
 
-        [Required(ErrorMessage = "O departamento é obrigatório.")]
-        [Display(Name = "Departamento")]
+        [Required(ErrorMessage = "Selecione um Departamento.")]
         public int DepartamentoId { get; set; }
 
-        // --- PROPRIEDADES ADICIONADAS PARA CRIAÇÃO ---
-        [Display(Name = "Acesso ao Café da Manhã")]
-        public bool AcessoCafeDaManha { get; set; }
-        [Display(Name = "Acesso ao Almoço")]
-        public bool AcessoAlmoco { get; set; }
-        [Display(Name = "Acesso à Janta")]
-        public bool AcessoJanta { get; set; }
-        [Display(Name = "Acesso à Ceia")]
-        public bool AcessoCeia { get; set; }
+        // [RESTAURADO] Campo para upload da foto
+        [Display(Name = "Foto do Colaborador")]
+        public IFormFile Foto { get; set; }
     }
 
-    // Modelo para o formulário de EDIÇÃO
+    // EDIÇÃO (Edit)
     public class ColaboradorEditModel
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "O nome é obrigatório.")]
+        [Required(ErrorMessage = "O Nome é obrigatório.")]
         public string Nome { get; set; }
 
-        [Required(ErrorMessage = "O cartão de ponto é obrigatório.")]
-        [Display(Name = "Cartão Ponto")]
+        [Required(ErrorMessage = "O Cartão Ponto é obrigatório.")]
         public string CartaoPonto { get; set; }
 
-        [Required(ErrorMessage = "A função é obrigatória.")]
-        [Display(Name = "Função")]
+        [Required]
         public int FuncaoId { get; set; }
 
-        [Required(ErrorMessage = "O departamento é obrigatório.")]
-        [Display(Name = "Departamento")]
+        [Required]
         public int DepartamentoId { get; set; }
 
         public bool Ativo { get; set; }
 
-        public byte[]? FotoAtual { get; set; }
-
-        // --- PROPRIEDADES ADICIONADAS PARA EDIÇÃO ---
-        [Display(Name = "Acesso ao Café da Manhã")]
-        public bool AcessoCafeDaManha { get; set; }
-        [Display(Name = "Acesso ao Almoço")]
-        public bool AcessoAlmoco { get; set; }
-        [Display(Name = "Acesso à Janta")]
-        public bool AcessoJanta { get; set; }
-        [Display(Name = "Acesso à Ceia")]
-        public bool AcessoCeia { get; set; }
+        // [RESTAURADO] Opcional na edição
+        [Display(Name = "Alterar Foto")]
+        public IFormFile Foto { get; set; }
     }
 }

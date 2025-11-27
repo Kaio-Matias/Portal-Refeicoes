@@ -1,82 +1,134 @@
 ﻿@page
 @model Portal_Refeicoes.Pages.Colaboradores.IndexModel
 @{
-    ViewData["Title"] = "Gestão de Colaboradores";
+    ViewData["Title"] = "Colaboradores";
 }
 
-<div class="page-title-container">
-    <h1 class="">@ViewData["Title"]</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-primary"><i class="bi bi-people-fill"></i> @ViewData["Title"]</h2>
+    <a asp-page="Create" class="btn btn-success shadow-sm">
+        <i class="bi bi-person-plus-fill"></i> Novo Colaborador
+    </a>
+</div>
 
-    <div class="">
-        <form method="get" style="max-width: 400px; width: 100%;">
-            <div class="">
-                <input type="text" class="" name="SearchString" placeholder="Buscar por Nome ou Cartão Ponto..." value="@Model.SearchString">
-                <button type="submit" class="">
-                    <i ></i>
-                </button>
+<div class="card shadow-sm mb-4 border-0">
+    <div class="card-body bg-light rounded">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Buscar</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" asp-for="SearchString" placeholder="Nome ou Cartão...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Departamento</label>
+                <select asp-for="FiltroDepartamentoId" asp-items="Model.DepartamentosSL" class="form-select">
+                    <option value="">-- Todos --</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Função</label>
+                <select asp-for="FiltroFuncaoId" asp-items="Model.FuncoesSL" class="form-select">
+                    <option value="">-- Todas --</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex flex-column gap-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                <div class="d-flex gap-2">
+                    <a asp-page="./Index" asp-route-ExibirTodos="true" class="btn btn-outline-dark w-100 btn-sm">Todos</a>
+                    <a asp-page="./Index" class="btn btn-outline-secondary w-100 btn-sm" title="Limpar"><i class="bi bi-x-lg"></i></a>
+                </div>
             </div>
         </form>
     </div>
-
-    <a asp-page="Create" class="">
-        <i class="bi bi-plus-circle me-2"></i> Novo Colaborador
-    </a>
 </div>
-<style>
 
+@if (Model.BuscaRealizada)
+{
+    <div class="row">
+        @if (Model.Colaboradores.Any())
+        {
+            @foreach (var item in Model.Colaboradores)
+            {
+                <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm border-0 hover-card">
+                        <div class="card-body text-center d-flex flex-column">
 
-</style>
+                            <div class="mb-3">
+                                @if (item.Foto != null && item.Foto.Length > 0)
+                                {
+                                    var base64 = Convert.ToBase64String(item.Foto);
+                                    var imgSrc = $"data:image/jpeg;base64,{base64}";
+                                    <img src="@imgSrc" alt="Foto de @item.Nome"
+                                         class="rounded-circle img-thumbnail"
+                                         style="width: 100px; height: 100px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <div class="avatar-circle bg-primary text-white mx-auto d-flex align-items-center justify-content-center"
+                                         style="width: 100px; height: 100px; border-radius: 50%; font-size: 2.5rem;">
+                                        <span>@(string.IsNullOrEmpty(item.Nome) ? "?" : item.Nome.Substring(0, 1).ToUpper())</span>
+                                    </div>
+                                }
+                            </div>
 
-<div class="row">
-    @foreach (var item in Model.Colaboradores)
-    {
-        <div class="col-xl-3 col-lg-4 col-md-6">
-            <div class="colaborador-card">
-                <div class="card-body">
+                            <h5 class="card-title text-truncate" title="@item.Nome">@item.Nome</h5>
+                            <p class="text-muted small mb-2">@item.Funcao</p>
 
-                    @{
-                        var imgSrc = "/img/avatar-placeholder.png"; // Imagem padrão
-                        if (item.Foto != null && item.Foto.Length > 0)
-                        {
-                            var base64 = Convert.ToBase64String(item.Foto);
-                            imgSrc = $"data:image/jpeg;base64,{base64}";
-                        }
-                    }
-                    <img src="@imgSrc" alt="Foto de @item.Nome" class="colaborador-foto" />
+                            <div class="mb-2">
+                                @if (item.Ativo)
+                                {
+                                    <span class="badge bg-success">Ativo</span>
+                                }
+                                else
+                                {
 
-                    <div class="nome-status">
-                        <h5 class="colaborador-nome">@item.Nome</h5>
+                                    <span class="badge bg-secondary">Inativo</span>
+                                }
+                            </div>
 
-                        @if (item.Ativo)
-                        {
-                            <span class="badge rounded-pill bg-success-subtle text-success-emphasis">Ativo</span>
-                        }
-                        else
-                        {
-                            <span class="badge rounded-pill bg-danger-subtle text-danger-emphasis">Inativo</span>
-                        }
-                    </div>
+                            <div class="text-start bg-light p-2 rounded mb-3 flex-grow-1 small">
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="bi bi-building me-2 text-primary"></i>
+                                    <span class="text-truncate">@item.Departamento</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-credit-card-2-front me-2 text-primary"></i>
+                                    <span>@item.CartaoPonto</span>
+                                </div>
+                            </div>
 
-                    <p class="colaborador-funcao">@item.Funcao</p>
-
-                    <div class="colaborador-info">
-                        <p class="mb-1">
-                            <i class="bi bi-briefcase-fill me-2 text-muted"></i>
-                            @item.Departamento
-                        </p>
-                        <p class="mb-0">
-                            <i class="bi bi-credit-card-2-front-fill me-2 text-muted"></i>
-                            @item.CartaoPonto
-                        </p>
-                    </div>
-
-                    <div class="actions">
-                        <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-outline-primary">
-                            <i class="bi bi-pencil-fill me-2"></i> Editar
-                        </a>
+                            <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-outline-primary w-100 mt-auto">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                        </div>
                     </div>
                 </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5 text-muted">
+                <i class="bi bi-emoji-frown display-4"></i>
+                <p class="mt-3">Nenhum colaborador encontrado.</p>
             </div>
-        </div>
+        }
+    </div>
+}
+else
+{
+    <div class="col-12 text-center py-5 text-muted">
+        <i class="bi bi-search display-1 opacity-25"></i>
+        <h4 class="mt-3">Aguardando Pesquisa</h4>
+        <p>Utilize os filtros acima para encontrar colaboradores.</p>
+    </div>
+}
+
+<style>
+    .hover-card:hover {
+        transform: translateY(-5px);
+        transition: 0.3s;
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
     }
-</div>
+</style>

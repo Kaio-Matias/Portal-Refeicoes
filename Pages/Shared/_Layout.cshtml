@@ -56,12 +56,7 @@
                     <span class="sidebar-text">Funções</span>
                 </a>
             </li>
-            <li>
-                <a asp-page="/ParadaDeFabrica/Index" class="nav-link text-white @(ViewData["Title"]?.ToString().Contains("Parada") ?? false ? "active" : "")" title="Parada de Fábrica">
-                    <i class="fas fa-industry me-2 sidebar-icon"></i>
-                    <span class="sidebar-text">Parada de Fábrica</span>
-                </a>
-            </li>
+            
             <li>
                 <a asp-page="/Justificativa/Index" class="nav-link text-white @(ViewData["Title"]?.ToString().Contains("Parada") ?? false ? "active" : "")" title="Parada de Fábrica">
                     <i class="fas fa-industry me-2 sidebar-icon"></i>
@@ -91,7 +86,7 @@
                 <li><a class="dropdown-item" href="#">Configurações</a></li>
                 <li><a class="dropdown-item" href="#">Perfil</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" asp-page="/Logout">Sair</a></li>
+                <li><a class="dropdown-item" asp-page="/Login">Sair</a></li>
             </ul>
         </div>
         @* Botão de toggle para Desktop (adicionado no rodapé da sidebar) *@

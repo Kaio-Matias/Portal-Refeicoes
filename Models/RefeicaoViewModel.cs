@@ -30,5 +30,7 @@ namespace Portal_Refeicoes.Models
 
         [JsonPropertyName("colaborador")]
         public ColaboradorRefeicaoViewModel Colaborador { get; set; }
+        public byte[] FotoRegistro { get; set; }
+        public string? TipoRefeicao { get; set; }  
     }
 }

@@ -1,42 +1,22 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Portal_Refeicoes.Models;
+using Portal_Refeicoes.Services;
 
 namespace Portal_Refeicoes.Pages.Departamentos
 {
     public class CreateModel : PageModel
     {
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly ApiClient _apiClient;
+        public CreateModel(ApiClient apiClient) { _apiClient = apiClient; }
 
-        public CreateModel(IHttpClientFactory clientFactory)
-        {
-            _clientFactory = clientFactory;
-        }
-
-        [BindProperty]
-        public Departamento Departamento { get; set; }
-
-        public IActionResult OnGet()
-        {
-            return Page();
-        }
+        [BindProperty] public Departamento Departamento { get; set; }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            var client = _clientFactory.CreateClient("ApiClient");
-            var response = await client.PostAsJsonAsync("/api/departamentos", Departamento);
-
-            if (response.IsSuccessStatusCode)
-            {
-                return RedirectToPage("./Index");
-            }
-
-            // Adicionar tratamento de erro se necessário
+            if (!ModelState.IsValid) return Page();
+            if (await _apiClient.CreateDepartamentoAsync(Departamento)) return RedirectToPage("./Index");
+            ModelState.AddModelError("", "Erro ao criar.");
             return Page();
         }
     }

@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 namespace Portal_Refeicoes.Pages.Funcoes
 {
     [Authorize]
-    public class CreateModel : PageModel
+    public class EditModel : PageModel
     {
         private readonly ApiClient _apiClient;
 
-        public CreateModel(ApiClient apiClient)
+        public EditModel(ApiClient apiClient)
         {
             _apiClient = apiClient;
         }
@@ -20,9 +20,16 @@ namespace Portal_Refeicoes.Pages.Funcoes
         [BindProperty]
         public Funcao Funcao { get; set; }
 
-        public void OnGet()
+        public async Task<IActionResult> OnGetAsync(int id)
         {
-            // Exibe o formulário vazio
+            Funcao = await _apiClient.GetFuncaoByIdAsync(id);
+
+            if (Funcao == null)
+            {
+                return NotFound();
+            }
+
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -32,14 +39,14 @@ namespace Portal_Refeicoes.Pages.Funcoes
                 return Page();
             }
 
-            var sucesso = await _apiClient.CreateFuncaoAsync(Funcao);
+            var sucesso = await _apiClient.UpdateFuncaoAsync(Funcao.Id, Funcao);
 
             if (sucesso)
             {
                 return RedirectToPage("./Index");
             }
 
-            ModelState.AddModelError(string.Empty, "Erro ao criar a função. Verifique se a API está acessível.");
+            ModelState.AddModelError(string.Empty, "Erro ao atualizar a função.");
             return Page();
         }
     }

@@ -4,69 +4,62 @@
     ViewData["Title"] = "Novo Colaborador";
 }
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 page-header">
-    <h1 class="h2">@ViewData["Title"]</h1>
-</div>
+<div class="container mt-4" style="max-width: 800px;">
+    <div class="card shadow">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0"><i class="bi bi-person-plus"></i> Novo Colaborador</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                <div class="row g-3">
 
-<div class="card card-form">
-    <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="Colaborador.Nome" class="form-label"></label>
-                        <input asp-for="Colaborador.Nome" class="form-control" />
-                        <span asp-validation-for="Colaborador.Nome" class="text-danger"></span>
+                    <div class="col-12 text-center mb-3">
+                        <div class="mb-2">
+                            <i class="bi bi-camera-fill display-4 text-muted"></i>
+                        </div>
+                        <label asp-for="Input.Foto" class="form-label fw-bold">Foto do Perfil</label>
+                        <input asp-for="Input.Foto" type="file" class="form-control mx-auto" style="max-width: 400px;" accept="image/*" />
+                        <span asp-validation-for="Input.Foto" class="text-danger"></span>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="Colaborador.CartaoPonto" class="form-label"></label>
-                        <input asp-for="Colaborador.CartaoPonto" class="form-control" />
-                        <span asp-validation-for="Colaborador.CartaoPonto" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="Colaborador.FuncaoId" class="form-label"></label>
-                        <select asp-for="Colaborador.FuncaoId" class="form-select" asp-items="Model.Funcoes">
-                            <option value="">Selecione a Função</option>
+                    <div class="col-md-12">
+                        <label asp-for="Input.Nome" class="form-label fw-bold">Nome Completo</label>
+                        <input asp-for="Input.Nome" class="form-control" />
+                        <span asp-validation-for="Input.Nome" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Input.CartaoPonto" class="form-label fw-bold">Cartão Ponto</label>
+                        <input asp-for="Input.CartaoPonto" class="form-control" />
+                        <span asp-validation-for="Input.CartaoPonto" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6"></div> <div class="col-md-6">
+                        <label asp-for="Input.DepartamentoId" class="form-label fw-bold">Departamento</label>
+                        <select asp-for="Input.DepartamentoId" asp-items="Model.Departamentos" class="form-select">
+                            <option value="">Selecione...</option>
                         </select>
-                        <span asp-validation-for="Colaborador.FuncaoId" class="text-danger"></span>
+                        <span asp-validation-for="Input.DepartamentoId" class="text-danger"></span>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="Colaborador.DepartamentoId" class="form-label"></label>
-                        <select asp-for="Colaborador.DepartamentoId" class="form-select" asp-items="Model.Departamentos">
-                            <option value="">Selecione o Departamento</option>
+
+                    <div class="col-md-6">
+                        <label asp-for="Input.FuncaoId" class="form-label fw-bold">Função</label>
+                        <select asp-for="Input.FuncaoId" asp-items="Model.Funcoes" class="form-select">
+                            <option value="">Selecione...</option>
                         </select>
-                        <span asp-validation-for="Colaborador.DepartamentoId" class="text-danger"></span>
+                        <span asp-validation-for="Input.FuncaoId" class="text-danger"></span>
                     </div>
                 </div>
-            </div>
 
-            <div class="mb-4">
-                <label asp-for="Imagem" class="form-label">Foto do Colaborador</label>
-                <input asp-for="Imagem" class="form-control" type="file" />
-                <span asp-validation-for="Imagem" class="text-danger"></span>
-            </div>
-
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary">Salvar Colaborador</button>
-                <a asp-page="./Index" class="btn btn-secondary">Cancelar</a>
-            </div>
-        </form>
+                <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+                    <a asp-page="Index" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-success px-4">Salvar</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

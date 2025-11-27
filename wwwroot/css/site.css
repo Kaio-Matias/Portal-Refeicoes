@@ -463,3 +463,178 @@ main {
 .Title-h2{
     text-align:center;
 }
+
+:root {
+    --sidebar-width-expanded: 250px; /* Ajustado para um padrão visual melhor */
+    --sidebar-width-collapsed: 80px; /* Largura exata para centralizar ícones */
+    --transition-speed: 0.3s;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* --- SIDEBAR PADRÃO (Expandida) --- */
+.sidebar {
+    width: var(--sidebar-width-expanded);
+    min-height: 100vh;
+    transition: width var(--transition-speed) ease, left var(--transition-speed) ease;
+    overflow-x: hidden;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+    /* Itens de Navegação */
+    .sidebar .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        white-space: nowrap; /* Evita quebra de texto durante a animação */
+        color: rgba(255, 255, 255, 0.8);
+        transition: all 0.2s;
+    }
+
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar .nav-link.active {
+            color: #fff;
+            background-color: #0d6efd; /* Cor primária do Bootstrap */
+        }
+
+    /* Ícones */
+    .sidebar .sidebar-icon {
+        min-width: 40px; /* Espaço fixo para o ícone */
+        text-align: center;
+        font-size: 1.2rem;
+        margin-right: 10px; /* Espaço entre ícone e texto */
+    }
+
+    /* Textos */
+    .sidebar .sidebar-brand-text,
+    .sidebar .sidebar-text {
+        opacity: 1;
+        transition: opacity 0.2s ease;
+    }
+
+    /* Logo */
+    .sidebar .sidebar-logo {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+    }
+
+    .sidebar hr {
+        border-color: rgba(255, 255, 255, 0.15);
+        margin: 1rem 0;
+    }
+
+    /* --- SIDEBAR RECOLHIDA (Collapsed) --- */
+    .sidebar.collapsed {
+        width: var(--sidebar-width-collapsed);
+    }
+
+        /* CORREÇÃO: Usar display:none remove o espaço do texto */
+        .sidebar.collapsed .sidebar-brand-text,
+        .sidebar.collapsed .sidebar-text,
+        .sidebar.collapsed .dropdown-toggle::after {
+            display: none;
+        }
+
+        /* Ajuste do Link para centralizar o conteúdo */
+        .sidebar.collapsed .nav-link {
+            justify-content: center; /* Centraliza horizontalmente */
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        /* Remove a margem do ícone para ele ficar perfeitamente no centro */
+        .sidebar.collapsed .sidebar-icon {
+            margin-right: 0 !important;
+        }
+
+        /* Ajuste da logo quando recolhido */
+        .sidebar.collapsed .sidebar-logo {
+            margin: 0 auto; /* Centraliza a logo */
+        }
+
+        /* Centraliza o botão de toggle no rodapé */
+        .sidebar.collapsed .sidebar-toggle-desktop-wrapper {
+            text-align: center;
+        }
+
+        /* Gira a seta do botão de toggle */
+        .sidebar.collapsed #sidebarToggleDesktop i {
+            transform: rotate(180deg);
+        }
+
+/* --- CONTEÚDO PRINCIPAL --- */
+.main-content {
+    flex-grow: 1; /* Ocupa o espaço restante */
+    transition: margin-left var(--transition-speed) ease;
+    width: 100%;
+    overflow-y: auto;
+    height: 100vh;
+}
+
+/* Responsividade Desktop */
+@media (min-width: 768px) {
+    /* Sidebar normal */
+    .main-content {
+        /* Em layout flex, o width ajusta automaticamente, mas se usar margin-left: */
+        /* margin-left: var(--sidebar-width-expanded); */
+    }
+
+    /* Sidebar recolhida */
+    .sidebar.collapsed + .main-content {
+        /* margin-left: var(--sidebar-width-collapsed); */
+    }
+
+    /* Esconde botões mobile */
+    #sidebarToggleOpen, #sidebarToggleClose {
+        display: none !important;
+    }
+}
+
+/* Responsividade Mobile */
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: fixed;
+        left: calc(-1 * var(--sidebar-width-expanded)); /* Escondida à esquerda */
+        z-index: 1040;
+        width: var(--sidebar-width-expanded) !important; /* Sempre expandida no mobile */
+    }
+
+        /* Sidebar aberta no mobile */
+        .sidebar.active {
+            left: 0;
+        }
+
+    /* Overlay escuro */
+    body.sidebar-open::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1030;
+        display: block;
+    }
+
+    /* Garante que textos apareçam no mobile mesmo se a classe collapsed vazar */
+    .sidebar .sidebar-text,
+    .sidebar .sidebar-brand-text {
+        display: inline-block !important;
+    }
+
+    .sidebar-toggle-desktop-wrapper {
+        display: none;
+    }
+}

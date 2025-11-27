@@ -9,7 +9,6 @@
 </div>
 
 <div class="row">
-    <!-- Card Colaboradores -->
     <div class="col-xl-4 col-md-6 mb-4">
         <div class="dashboard-card">
             <div class="card-body">
@@ -24,7 +23,6 @@
         </div>
     </div>
 
-    <!-- Card Refeições -->
     <div class="col-xl-4 col-md-6 mb-4">
         <div class="dashboard-card">
             <div class="card-body">
@@ -39,9 +37,7 @@
         </div>
     </div>
 
-    <!-- Card Alertas (Clicável) -->
     <div class="col-xl-4 col-md-6 mb-4">
-        <!-- A classe position-relative é necessária para o stretched-link funcionar -->
         <div class="dashboard-card position-relative @(Model.Stats.AlertasPendentes > 0 ? "border-warning shadow-sm" : "")">
             <div class="card-body">
                 <div class="card-icon icon-alertas @(Model.Stats.AlertasPendentes > 0 ? "text-warning" : "")">
@@ -49,12 +45,9 @@
                 </div>
                 <div class="card-content">
                     <div class="card-title text-uppercase text-dark">Alertas Pendentes</div>
-
                     <div class="card-text @(Model.Stats.AlertasPendentes > 0 ? "text-danger fw-bold" : "text-dark")">
                         @Model.Stats.AlertasPendentes
                     </div>
-
-                    <!-- Este link cobre todo o card -->
                     <a asp-page="/Justificativa/Index" class="stretched-link text-decoration-none"></a>
                 </div>
             </div>
@@ -63,20 +56,26 @@
 </div>
 
 <div class="row">
-    <div class="col-lg-12 mb-4">
-        <div class="chart-container">
-            <h5 class="mb-3">Refeições da Última Semana</h5>
-            <p class="text-center text-muted">(Área para um futuro gráfico de barras)</p>
-            <img src="~/img/grafico-exemplo.png" class="img-fluid" alt="Gráfico de exemplo" onerror="this.style.display='none'" />
+    <div class="col-xl-8 col-lg-7 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between header-laranja">
+                <h6 class="m-0 font-weight-bold">Refeições da Semana</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area text-center">
+                    <p class="text-muted mt-5">(Área reservada para Gráfico)</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="col-lg-12">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 header-laranja">
-                <h6 class="m-0 font-weight-bold">Últimos Registos</h6>
+    <div class="col-xl-4 col-lg-5 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3 header-laranja d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold">Registos de Hoje</h6>
+                <span class="badge bg-light text-dark">@DateTime.Now.ToString("dd/MM")</span>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 <ul class="list-group list-group-flush">
                     @if (Model.RegistrosRecentes != null && Model.RegistrosRecentes.Any())
                     {
@@ -84,21 +83,31 @@
                         {
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>@registro.ColaboradorNome</strong><br>
-                                    <small class="text-muted">@registro.DepartamentoNome</small>
+                                    <div class="fw-bold text-dark">@registro.ColaboradorNome</div>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-building me-1"></i>@registro.DepartamentoNome
+                                    </div>
                                 </div>
-                                <span class="badge bg-light text-dark">@registro.DataHoraRegistro.ToString("HH:mm")</span>
+                                <div class="text-end">
+                                    <span class="badge bg-primary rounded-pill">@registro.DataHoraRegistro.ToString("HH:mm")</span>
+                                </div>
                             </li>
                         }
                     }
                     else
                     {
-                        <li class="list-group-item">Nenhum registo hoje.</li>
+                        <li class="list-group-item text-center py-5 text-muted">
+                            <i class="bi bi-clock-history display-4 d-block mb-3 opacity-25"></i>
+                            <p class="mb-0">Nenhum registo encontrado hoje.</p>
+                            <small>Novos registos aparecerão aqui.</small>
+                        </li>
                     }
                 </ul>
-                <div class="text-center mt-3">
-                    <a asp-page="/Refeicoes/Index" class="text-decoration-none">Ver Todos os Registos &rarr;</a>
-                </div>
+            </div>
+            <div class="card-footer text-center bg-white">
+                <a asp-page="/Refeicoes/Index" class="btn btn-sm btn-outline-primary w-100">
+                    Ver Histórico Completo <i class="bi bi-arrow-right ms-1"></i>
+                </a>
             </div>
         </div>
     </div>
